@@ -1,4 +1,4 @@
-flask
-pymongo[srv]
-python-dotenv
-dnspython
+Flask==3.0.3
+pymongo[srv]==4.7.2
+dnspython==2.5.0
+python-dotenv==1.0.0
