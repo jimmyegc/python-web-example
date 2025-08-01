@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: flask-crud-atlas
-    env: python
-    buildCommand: ""
-    startCommand: "python app.py"
-    envVars:
-      - key: MONGO_URI
-        value: mongodb+srv://jimmyegc:4jMnuDVFS6mnuruX@api-db.vrhia.mongodb.net/crud_db?retryWrites=true&w=majority
