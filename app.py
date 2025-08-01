@@ -1,45 +1,35 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 from pymongo import MongoClient
-from bson.objectid import ObjectId
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 app = Flask(__name__)
 
-# Obtenemos URI desde variable de entorno o fallback local
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
+# Cargar URI desde el entorno
+MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
-db = client['crud_db']
-collection = db['items']
+db = client["crud_db"]
+collection = db["items"]
 
 @app.route('/')
 def index():
-    items = list(collection.find())
+    items = collection.find()
     return render_template('index.html', items=items)
 
-@app.route('/add', methods=['GET', 'POST'])
-def add_item():
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        descripcion = request.form['descripcion']
-        collection.insert_one({'nombre': nombre, 'descripcion': descripcion})
-        return redirect(url_for('index'))
-    return render_template('form.html')
+@app.route('/add', methods=['POST'])
+def add():
+    name = request.form.get('name')
+    if name:
+        collection.insert_one({"name": name})
+    return redirect('/')
 
-@app.route('/edit/<id>', methods=['GET', 'POST'])
-def edit_item(id):
-    item = collection.find_one({'_id': ObjectId(id)})
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        descripcion = request.form['descripcion']
-        collection.update_one({'_id': ObjectId(id)}, {'$set': {'nombre': nombre, 'descripcion': descripcion}})
-        return redirect(url_for('index'))
-    return render_template('form.html', item=item)
-
-@app.route('/delete/<id>')
-def delete_item(id):
-    collection.delete_one({'_id': ObjectId(id)})
-    return redirect(url_for('index'))
+@app.route('/delete/<item_id>')
+def delete(item_id):
+    from bson.objectid import ObjectId
+    collection.delete_one({"_id": ObjectId(item_id)})
+    return redirect('/')
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    app.run(debug=True)
